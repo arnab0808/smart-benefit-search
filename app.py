@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import chromadb
-from sentence_transformers import SentenceTransformer
 from openai import OpenAI
 from tavily import TavilyClient
 import os
@@ -13,10 +12,7 @@ app = FastAPI()
 client = chromadb.PersistentClient(path="chroma_db")
 collection = client.get_or_create_collection("insurance_docs")
 
-# Embedding model
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
-
-# OpenAI client (correct syntax)
+# OpenAI client
 llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Tavily client
@@ -29,12 +25,16 @@ class QueryRequest(BaseModel):
 @app.post("/answer")
 def answer_question(request: QueryRequest):
 
-    # Step 1 — Embed the question
-    query_embedding = embedder.encode([request.question]).tolist()
+    # Step 1 — Embed the question using OpenAI (lightweight)
+    embedding_response = llm.embeddings.create(
+        model="text-embedding-3-small",
+        input=request.question
+    )
+    query_embedding = embedding_response.data[0].embedding
 
     # Step 2 — Retrieve relevant chunks from ChromaDB
     results = collection.query(
-        query_embeddings=query_embedding,
+        query_embeddings=[query_embedding],
         n_results=request.n_results
     )
 
