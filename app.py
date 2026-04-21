@@ -77,8 +77,11 @@ def answer_question(request: QueryRequest):
                     "content": (
                         "You are an insurance benefits expert. You answer questions about "
                         "health insurance plans and benefits. The first line of the first "
-                        "question in a conversation will contain the plan name. In follow-up "
-                        "questions, the user may refer to 'this plan'; infer the plan name "
+                        "question in a conversation will contain the plan name."
+                        "Please analyze the question to find the indication of plan name."
+                        "If the plan name is incorrect suggest an intended plan name in the answer."
+                        "If user asks a question which is not related to Health Care Benefits, answer saying I am setup to only answer benefit questions."
+                        "In follow-up questions, the user may refer to 'this plan'; infer the plan name "
                         "from earlier turns.\n\n"
                         "Your job is to:\n"
                         "1. Read extracted text from PDF plan documents.\n"
